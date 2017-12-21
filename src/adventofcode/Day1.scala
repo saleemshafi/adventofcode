@@ -1,3 +1,5 @@
+package adventofcode
+
 /**
   * Created by mshafi on 12/7/17.
   */
@@ -16,11 +18,6 @@ object Day1 {
   }
 
   def midChecksum(input: String) = checksum(input, input.length / 2)
-
-  def inputAsString(filename: String) = {
-    val source = scala.io.Source.fromFile(filename)
-    try source.mkString.trim finally source.close()
-  }
 
   def main(args: Array[String]) = {
     assert(checksum("1122") == 3)
