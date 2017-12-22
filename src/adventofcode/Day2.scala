@@ -25,10 +25,9 @@ object Day2 {
     assert(calculate(minMaxDiff, Array("5 1 9 5", "7 5 3", "2 4 6 8")) == 18)
     assert(calculate(evenDiv, Array("5 9 2 8", "9 4 7 3", "3 8 6 5")) == 9)
 
-    val day2input = inputAsString("dat/day2.dat")
-    var inputRows = day2input.split("\n")
+    val inputRows = inputAsListOfStrings("dat/day2.dat")
 
     println(calculate(minMaxDiff, inputRows)) // 36174
-    println(calculate(evenDiv, inputRows)) //
+    println(calculate(evenDiv, inputRows)) // 244
   }
 }
