@@ -5,19 +5,29 @@ package adventofcode
   */
 object Day4 {
 
-  def validPassphrase(phrase:String):Boolean =
+  def validPassphrase(hashAlgo: String => String)(phrase:String):Boolean =
    phrase.split(" ")
-      .groupBy(token => token)
-      .filter(entry => entry._2.size > 1)
+      .groupBy(hashAlgo)
+      .filter(_._2.size > 1)
       .isEmpty
+
+  def anagram(orig:String) = orig.sorted
 
   def main(args: Array[String]) = {
 
-    assert(validPassphrase("aa bb cc dd ee"))
-    assert(!validPassphrase("aa bb cc dd aa"))
-    assert(validPassphrase("aa bb cc dd aaa"))
+    assert(validPassphrase(identity)("aa bb cc dd ee"))
+    assert(!validPassphrase(identity)("aa bb cc dd aa"))
+    assert(validPassphrase(identity)("aa bb cc dd aaa"))
+
+    assert(validPassphrase(anagram)("abcde fghij"))
+    assert(!validPassphrase(anagram)("abcde xyz ecdab"))
+    assert(validPassphrase(anagram)("a ab abc abd abf abj"))
+    assert(validPassphrase(anagram)("iiii oiii ooii oooi oooo"))
+    assert(!validPassphrase(anagram)("oiii ioii iioi iiio"))
+
 
     val inputRows = inputAsListOfStrings("dat/day4.dat")
-    println(inputRows.filter(validPassphrase).length) // 477
+    println(inputRows.filter(validPassphrase(identity)).length) // 477
+    println(inputRows.filter(validPassphrase(anagram)).length) // 477
   }
 }
