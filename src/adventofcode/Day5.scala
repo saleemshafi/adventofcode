@@ -5,13 +5,16 @@ package adventofcode
   */
 object Day5 {
 
-  def execute(instructions:Array[Int]):Int = {
+  def increment(i:Int) = i + 1
+  def limit3(i:Int) = if (i >= 3) i-1 else i+1
+
+  def execute(offsetter:Int => Int)(instructions:Array[Int]):Int = {
     def steps(num:Int, pointer:Int):Int = {
       if (pointer >= instructions.length) {
         num
       } else {
         val offset = instructions(pointer)
-        instructions(pointer) = offset+1
+        instructions(pointer) = offsetter(offset)
         steps(num+1, pointer+offset)
       }
     }
@@ -22,10 +25,14 @@ object Day5 {
 
   def main(args: Array[String]) = {
 
-    assert(execute(Array(0, 3,  0,  1, -3)) == 5)
+    assert(execute(increment)(Array(0, 3,  0,  1, -3)) == 5)
 
     val instructions = inputAsListOfStrings("dat/day5.dat").map(Integer.parseInt).array
-    println(execute(instructions)) // 378980
+    println(execute(increment)(instructions))  // 378980
+
+    // reset the instructions since they were modified with the previous execution
+    val instructionsAgain = inputAsListOfStrings("dat/day5.dat").map(Integer.parseInt).array
+    println(execute(limit3)(instructionsAgain))  // 26889114
   }
 
 }
