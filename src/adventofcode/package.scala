@@ -7,6 +7,9 @@ package object adventofcode {
     try source.mkString.trim finally source.close()
   }
 
-  def inputAsListOfStrings(filename: String) =
-    inputAsString(filename).split("\n").map(_.trim)
+  def splitLines(text:String) = {
+    text.trim.split("\n").map(_.trim)
+  }
+
+  def inputAsListOfStrings(filename: String) =  splitLines(inputAsString(filename))
 }
