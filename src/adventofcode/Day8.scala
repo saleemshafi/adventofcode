@@ -38,22 +38,36 @@ object Day8 {
     }
   }
 
-  def executeInstruction(instruction:String, registers:Map[String,Int]): Unit = {
+  def executeInstruction(instruction:String, registers:Registers) = {
     val pieces = instruction.trim.split(" if ")
     val change = parseChange(pieces(0))
     val condition = parseCondition(pieces(1))
     if (condition(registers)) {
       change(registers)
     }
-  }
-
-  def execute(instructions:Array[String], registers:Map[String,Int]) = {
-    instructions.foreach(executeInstruction(_, registers))
     registers
   }
 
-  def maxRegisterValue(registers:Map[String,Int]) = {
-    registers.maxBy(entry => entry._2)._2
+  def execute(instructions:Array[String], registers:Registers, monitor:Registers => Unit = NoMonitor.monitor) = {
+    instructions.foreach(in => monitor(executeInstruction(in, registers)) )
+    registers
+  }
+
+  def maxRegisterValue(registers:Map[String,Int]) = if (registers.isEmpty) {
+    0
+  } else {
+    registers.map(_._2).max
+  }
+
+  object NoMonitor {
+    def monitor(registers: Registers) {}
+  }
+
+  class MaxRegisterSizeMonitor {
+    var maxSize = -1
+    def monitor(registers: Registers): Unit = {
+      maxSize = Math.max(maxSize, maxRegisterValue(registers))
+    }
   }
 
   def main(args:Array[String]) = {
@@ -62,10 +76,14 @@ object Day8 {
         |a inc 1 if b < 5
         |c dec -10 if a >= 1
         |c inc -20 if c == 10""".stripMargin)
-    assert(maxRegisterValue(execute(testInstructions, Map.empty.withDefault(_ => 0))) == 1)
+    val testMonitor = new MaxRegisterSizeMonitor
+    assert(maxRegisterValue(execute(testInstructions, Map.empty.withDefault(_ => 0), testMonitor.monitor)) == 1)
+    assert(testMonitor.maxSize == 10)
 
 
     val instructions = inputAsListOfStrings("dat/day8.dat")
-    println(maxRegisterValue(execute(instructions, Map.empty.withDefault(_ => 0))))  // 4066
+    val monitor = new MaxRegisterSizeMonitor
+    println(maxRegisterValue(execute(instructions, Map.empty.withDefault(_ => 0), monitor.monitor)))  // 4066
+    println(monitor.maxSize) // 4829
   }
 }
