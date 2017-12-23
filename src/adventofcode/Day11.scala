@@ -19,6 +19,7 @@ object Day11 {
         case "se" => goSouthEast
         case "sw" => goSouthWest
       }
+      numSteps
     }
 
     def goNorth = {
@@ -68,17 +69,19 @@ object Day11 {
   def numSteps(data:String) = {
     val steps = data.split(",").map(_.trim)
     val path = new OptimizedPath
-    steps.foreach(path.takeStep)
-    path.numSteps
+    val distances = steps.map(path.takeStep)
+    (path.numSteps, distances.max)
   }
 
   def main(arg:Array[String]): Unit = {
     val data = inputAsString("dat/day11.dat")
 
-    assert(numSteps("ne,ne,ne") == 3)
-    assert(numSteps("ne,ne,sw,sw") == 0)
-    assert(numSteps("ne,ne,s,s") == 2)
-    assert(numSteps("se,sw,se,sw,sw") == 3)
-    println(numSteps(data))
+    assert(numSteps("ne,ne,ne")._1 == 3)
+    assert(numSteps("ne,ne,sw,sw")._1 == 0)
+    assert(numSteps("ne,ne,s,s")._1 == 2)
+    assert(numSteps("se,sw,se,sw,sw")._1 == 3)
+    val steps = numSteps(data)
+    println(steps._1)  // 670
+    println(steps._2)  // 1426
   }
 }
