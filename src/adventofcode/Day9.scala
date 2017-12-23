@@ -5,34 +5,59 @@ package adventofcode
   */
 object Day9 {
 
-  def groupScore(text:String):Int = {
-    var i = 0
+  abstract class Visitor {
+    def startGroup(level:Int):Unit
+    def endGroup(level:Int):Unit
+    def encounterGarbage:Unit
+  }
+
+  class ScoringVisitor extends Visitor {
+    var groups = 0
+    var garbage = 0
     var score = 0
+
+    def startGroup(level:Int):Unit = {}
+    def endGroup(level:Int):Unit = { groups += 1; score += level }
+    def encounterGarbage:Unit = { garbage += 1}
+  }
+
+  def process[T <: Visitor](visitor: T)(text:String):T = {
+    var i = 0
     var level = 0
     var inGarbage = false
     while (i < text.length) {
       text.charAt(i) match {
-        case '{' if !inGarbage => { level += 1; i += 1 }
-        case '}' if !inGarbage => { score += level; level -= 1; i += 1 }
+        case '!' => { i += 2 }
+        case '{' if !inGarbage => { visitor.startGroup(level); level += 1; i += 1 }
+        case '}' if !inGarbage => { visitor.endGroup(level); level -= 1; i += 1 }
         case '<' if !inGarbage => { inGarbage = true; i += 1 }
         case '>' if inGarbage => { inGarbage = false; i += 1 }
-        case '!' => { i += 2 }
-        case _ => { i+= 1 }
+        case _ => { if (inGarbage) { visitor.encounterGarbage}; i+= 1 }
       }
     }
-    score
+    visitor
   }
 
   def main(args:Array[String]) {
-    assert(groupScore("{}") == 1)
-    assert(groupScore("{{{}}}") == 6)
-    assert(groupScore("{{},{}}") == 5)
-    assert(groupScore("{{{},{},{{}}}}") == 16)
-    assert(groupScore("{<a>,<a>,<a>,<a>}") == 1)
-    assert(groupScore("{{<ab>},{<ab>},{<ab>},{<ab>}}") == 9)
-    assert(groupScore("{{<!!>},{<!!>},{<!!>},{<!!>}}") == 9)
-    assert(groupScore("{{<a!>},{<a!>},{<a!>},{<ab>}}") == 3)
+    assert(process(new ScoringVisitor)("{}").score == 1)
+    assert(process(new ScoringVisitor)("{{{}}}").score == 6)
+    assert(process(new ScoringVisitor)("{{},{}}").score == 5)
+    assert(process(new ScoringVisitor)("{{{},{},{{}}}}").score == 16)
+    assert(process(new ScoringVisitor)("{<a>,<a>,<a>,<a>}").score == 1)
+    assert(process(new ScoringVisitor)("{{<ab>},{<ab>},{<ab>},{<ab>}}").score == 9)
+    assert(process(new ScoringVisitor)("{{<!!>},{<!!>},{<!!>},{<!!>}}").score == 9)
+    assert(process(new ScoringVisitor)("{{<a!>},{<a!>},{<a!>},{<ab>}}").score == 3)
 
-    println(groupScore(inputAsString("dat/day9.dat")))  // 11898
+    assert(process(new ScoringVisitor)("<>").garbage == 0)
+    assert(process(new ScoringVisitor)("<random characters>").garbage == 17)
+    assert(process(new ScoringVisitor)("<<<<>").garbage == 3)
+    assert(process(new ScoringVisitor)("<{!>}>").garbage == 2)
+    assert(process(new ScoringVisitor)("<!!>").garbage == 0)
+    assert(process(new ScoringVisitor)("<!!!>>").garbage == 0)
+    assert(process(new ScoringVisitor)("<{o\"i!a,<{i<a>").garbage == 10)
+
+    var visitor = process(new ScoringVisitor)(inputAsString("dat/day9.dat"))
+    println(visitor.score)  // 11898
+    println(visitor.garbage)
   }
 }
