@@ -5,10 +5,13 @@ package adventofcode
   */
 object Day15 {
 
-  def generator(factor:BigInt)(iv:Int) = new Iterator[Int] {
+  def generator(factor:BigInt, check:Int=>Boolean = _ => true)(iv:Int) = new Iterator[Int] {
     var prev = iv
     def next = {
-      prev = ((prev * factor) % 2147483647).toInt
+      def getNext = prev = ((prev * factor) % 2147483647).toInt
+
+      getNext
+      while (!check.apply(prev)) getNext
       prev
     }
     def hasNext = true
@@ -29,6 +32,14 @@ object Day15 {
     assert(judge(5)(genA(65), genB(8921)) == 1)
     assert(judge(40000000)(genA(65), genB(8921)) == 588)
 
-    println(judge(40000000)(genA(703), genB(516)))
+    val filteredGenA = generator(16807, _ % 4 == 0)(_)
+    val filteredGenB = generator(48271, _ % 8 == 0)(_)
+    assert(filteredGenA(65).take(5).toList == List(1352636452, 1992081072, 530830436, 1980017072, 740335192))
+    assert(filteredGenB(8921).take(5).toList == List(1233683848, 862516352, 1159784568, 1616057672, 412269392))
+    assert(judge(5000000)(filteredGenA(65), filteredGenB(8921)) == 309)
+
+    println(judge(40000000)(genA(703), genB(516)))  // 594
+    println(judge(5000000)(filteredGenA(703), filteredGenB(516)))  //
+
   }
 }
