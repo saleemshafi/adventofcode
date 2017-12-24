@@ -40,6 +40,7 @@ object Day12 {
     val connections = data.map(parseConnection)
     val groups = group(connections)
 
-    println(groups(0).size)
+    println(groups(0).size)  // 239
+    println(groups.values.toSet.size)  // 215
   }
 }
